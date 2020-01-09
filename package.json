@@ -1,7 +1,7 @@
 {
-  "name": "picache",
-  "version": "1.0.13",
-  "description": "A React Native component to automatically cache images.",
+  "name": "picache2",
+  "version": "2.0.0",
+  "description": "A React Native component to automatically cache images, expo >= 33",
   "types": "lib/Picache.d.ts",
   "main": "lib/Picache",
   "scripts": {
@@ -10,13 +10,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/benawad/Picache"
+    "url": "https://github.com/sabativi/Picache"
   },
   "bugs": {
-    "url": "https://github.com/benawad/Picache/issues"
+    "url": "https://github.com/sabativi/Picache/issues"
   },
-  "homepage": "https://github.com/benawad/Picache",
-  "author": "Ben Awad",
+  "homepage": "https://github.com/sabativi/Picache",
+  "author": "Ben Awad, Victor Sabatier",
   "license": "MIT",
   "files": [
     "lib"
@@ -25,16 +25,14 @@
     "shorthash": "^0.0.2"
   },
   "devDependencies": {
-    "@types/expo": "^25.0.0",
-    "@types/react": "^16.0.40",
-    "@types/react-native": "^0.52.16",
     "tslint": "^5.9.1",
     "tslint-config-prettier": "^1.9.0",
     "tslint-react": "^3.5.1",
     "typescript": "^2.7.2"
   },
   "peerDependencies": {
-    "expo": "*",
+    "expo-file-system": "*",
+    "expo-asset": "*",
     "react": "*",
     "react-native": "*"
   }

@@ -1,15 +1,14 @@
 import * as React from "react";
 import { Image, ImageProperties, ImageRequireSource } from "react-native";
 import * as shorthash from "shorthash";
-import { FileSystem, Asset } from "expo";
-import { State, Source } from "./types";
+import { Asset } from "expo-asset";
+import * as FileSystem from "expo-file-system";
+import { Source } from "./types";
 
-export default class Picache extends React.Component<ImageProperties, State> {
-  state = {
-    source: {}
-  };
+const Picache = (props: ImageProperties) => {
+  const [imageSource, setImageSource] = React.useState({});
 
-  async downloadRemoteImage(uri: string) {
+  const downloadRemoteImage = async (uri: string) => {
     const name = shorthash.unique(uri);
     const path = `${FileSystem.cacheDirectory}${name}.png`;
     const image = await FileSystem.getInfoAsync(path);
@@ -19,36 +18,30 @@ export default class Picache extends React.Component<ImageProperties, State> {
 
     const newImage = await FileSystem.downloadAsync(uri, path);
     return newImage.uri;
-  }
+  };
 
-  async downloadLocalImage(source: ImageRequireSource) {
+  const downloadLocalImage = async (source: ImageRequireSource) => {
     const asset = await Asset.fromModule(source);
     if (!asset.localUri) {
       await asset.downloadAsync();
     }
-    this.setState({
-      source: {
-        uri: asset.localUri
-      }
-    });
-  }
+    setImageSource({ uri: asset.localUri });
+  };
 
-  async returnNull() {
+  const returnNull = async () => {
     return null;
-  }
+  };
 
-  async downloadImage(source: Source) {
+  const downloadImage = async (source: Source) => {
     if (typeof source === "number") {
-      // local image require('./image.png')
-      this.downloadLocalImage(source);
+      downloadLocalImage(source);
     } else if (Array.isArray(source)) {
       const newUris = await Promise.all(
         source.map(s => {
           if (s.uri) {
-            return this.downloadRemoteImage(s.uri);
-          } else {
-            return this.returnNull();
+            return downloadRemoteImage(s.uri);
           }
+          return returnNull();
         })
       );
       const newSources = [];
@@ -61,38 +54,25 @@ export default class Picache extends React.Component<ImageProperties, State> {
           });
         }
       }
-      this.setState({
-        source: newSources
-      });
+      setImageSource(newSources);
     } else {
       if (source.uri) {
-        const newUri = await this.downloadRemoteImage(source.uri);
-        this.setState({
-          source: {
-            ...source,
-            uri: newUri
-          }
+        const newUri = await downloadRemoteImage(source.uri);
+        setImageSource({
+          ...source,
+          uri: newUri
         });
       }
     }
-  }
+  };
 
-  async componentWillReceiveProps(
-    nextProps: ImageProperties,
-    props: ImageProperties
-  ) {
-    if (nextProps.source === props.source) {
-      return;
-    }
-    this.downloadImage(nextProps.source);
-  }
+  React.useEffect(() => {
+    downloadImage(props.source);
+  }, [props.source]);
 
-  async componentDidMount() {
-    this.downloadImage(this.props.source);
-  }
+  const { source, ...otherProps } = props;
 
-  render() {
-    const { source, ...otherProps } = this.props;
-    return <Image source={this.state.source} {...otherProps} />;
-  }
-}
+  return <Image source={imageSource} {...otherProps} />;
+};
+
+export default Picache;
